@@ -30,6 +30,7 @@ if indices:
     st.subheader("Ingredientes totales")
     st.dataframe(resultado)
 
-    st.subheader("Lista para comprar")
+    st.subheader("Lista de compras")
     for _, fila in resultado.iterrows():
         st.write(f'{fila["Cantidad"]} {fila["Unidad"]} {fila["Producto"]}')
+
