@@ -87,12 +87,12 @@ if indices:
     # -------------------------------
     # INGRESO MANUAL SIMPLE (TEXTO ÚNICO)
     # -------------------------------
-    st.subheader("Agregar ingrediente manual")
+    st.subheader("Añadir Producto")
 
     if "manual_items" not in st.session_state:
         st.session_state.manual_items = []
 
-    texto_manual = st.text_input("Escribe un ingrediente (ej: 2 kg arroz)")
+    texto_manual = st.text_input("Escribe un ingrediente:")
 
     if st.button("Agregar"):
         if texto_manual:
@@ -228,6 +228,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
