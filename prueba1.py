@@ -256,57 +256,31 @@ subset["Costo"] = costos
 st.subheader("Detalle")
 st.dataframe(subset, use_container_width=True)
 
-st.subheader("Total del índice")
-st.metric("Costo total", f"S/ {total_idx:,.2f}")
-
-# TOTAL GENERAL
-
+# Calcular total general
 totales = []
 
 for idx in indices:
     sub = tabla1[tabla1["Índice"] == idx]
-    total_idx = 0
+    total_tmp = 0
 
     for _, row in sub.iterrows():
         kg = convertir_a_kg(row["Cantidad"], row["Unidad"], row["Producto"])
         precio = ultimo_precio(row["Producto"])
-        if precio:
-            total_idx += kg * precio
+        total_tmp += kg * precio
 
-    totales.append(total_idx)
+    totales.append(total_tmp)
 
-st.divider()
-st.subheader("Total general (todos los índices)")
-st.metric("TOTAL", f"S/ {sum(totales):,.2f}")
+total_general = sum(totales)
 
-                             
-# ===============================
-# SECCIÓN 4 → GRÁFICO DE COSTOS
-# ===============================
+# Mostrar en columnas (lado a lado)
+col1, col2 = st.columns(2)
 
-st.divider()
-st.header("Ingrediente más costoso")
+with col1:
+    st.metric("Costo del índice seleccionado", f"S/ {total_idx:,.2f}")
 
-opciones = ["Total"] + sorted(indices)
+with col2:
+    st.metric("Costo total general", f"S/ {total_general:,.2f}")
 
-seleccion = st.selectbox("Ver costos de:", opciones)
-
-"""
-if seleccion == "Total":
-    datos_grafico = (
-        df[df["Índice"].isin(indices)]
-        .groupby("Producto")["Cantidad"]
-        .sum()
-        .sort_values(ascending=False)
-    )
-else:
-    datos_grafico = (
-        df[df["Índice"] == seleccion]
-        .groupby("Producto")["Cantidad"]
-        .sum()
-        .sort_values(ascending=False)
-    )
-"""
 
 
 
