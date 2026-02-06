@@ -55,7 +55,7 @@ if indices:
     
     # Crear estado persistente si no existe
     if "check_estado" not in st.session_state:
-    st.session_state.check_estado = {}
+        st.session_state.check_estado = {}
     
     
     # Crear claves únicas por producto (unidad + nombre)
@@ -63,27 +63,27 @@ if indices:
     
     
     for _, fila in resultado.iterrows():
-    clave = f"{fila['Unidad']} - {fila['Producto']}"
-    claves_actuales.add(clave)
+        clave = f"{fila['Unidad']} - {fila['Producto']}"
+        claves_actuales.add(clave)
+        
+        
+        # Si el producto es nuevo, iniciar en False
+        if clave not in st.session_state.check_estado:
+            st.session_state.check_estado[clave] = False
     
     
-    # Si el producto es nuevo, iniciar en False
-    if clave not in st.session_state.check_estado:
-    st.session_state.check_estado[clave] = False
+        # Mostrar checkbox manteniendo estado previo
+        st.session_state.check_estado[clave] = st.checkbox(
+            f"{fila['Cantidad']} {fila['Unidad']} {fila['Producto']}",
+            value=st.session_state.check_estado[clave],
+            key=f"chk_{clave}"
+        )
     
     
-    # Mostrar checkbox manteniendo estado previo
-    st.session_state.check_estado[clave] = st.checkbox(
-    f"{fila['Cantidad']} {fila['Unidad']} {fila['Producto']}",
-    value=st.session_state.check_estado[clave],
-    key=f"chk_{clave}"
-    )
-    
-    
-    # Eliminar del estado productos que ya no están en la lista
-    claves_guardadas = set(st.session_state.check_estado.keys())
-    for clave in claves_guardadas - claves_actuales:
-    del st.session_state.check_estado[clave]
+        # Eliminar del estado productos que ya no están en la lista
+        claves_guardadas = set(st.session_state.check_estado.keys())
+        for clave in claves_guardadas - claves_actuales:
+            del st.session_state.check_estado[clave]
 
 
 # ===============================
@@ -224,6 +224,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
