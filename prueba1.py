@@ -63,7 +63,7 @@ producto = st.selectbox(
 )
 
 # Filtrar datos del producto
-fila = tabla1[tabla1["Producto"] == producto].drop(columns="Producto").T
+fila = tabla2[tabla2["Producto"] == producto].drop(columns="Producto").T
 fila.columns = ["Precio"]
 
 # Convertir índice a fechas reales
@@ -175,6 +175,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
