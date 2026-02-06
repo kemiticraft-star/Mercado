@@ -247,7 +247,9 @@ for _, row in subset.iterrows():
     kg = convertir_a_kg(row["Cantidad"], row["Unidad"], row["Producto"])
     precio = ultimo_precio(row["Producto"])
 
+    total = kg * precio
     costos.append(total)
+
 
 subset["Costo"] = costos
 
@@ -278,6 +280,7 @@ for idx in indices:
 st.divider()
 st.subheader("Total general (todos los índices)")
 st.metric("TOTAL", f"S/ {sum(totales):,.2f}")
+
 
 
 
