@@ -4,11 +4,14 @@ import matplotlib.pyplot as plt
 
 st.title("Mercado", text_alignment="center")
 
-# --- URL del Google Sheets (tabla de compras) ---
+# --- URL de Base 1 ---
 url_1 = "https://docs.google.com/spreadsheets/d/1hfUF27WMtRIFtnqqgbZX3NU5FSlApzhnw2x3ALUDaVo/export?format=csv"
 
-# --- URL de la tabla de precios (Base 2) ---
+# --- URL de Base 2---
 url_2 = "https://docs.google.com/spreadsheets/d/1hfUF27WMtRIFtnqqgbZX3NU5FSlApzhnw2x3ALUDaVo/export?format=csv&gid=1970064496"
+
+# --- URL de equivalencias ---
+url_3 = "https://docs.google.com/spreadsheets/d/1hfUF27WMtRIFtnqqgbZX3NU5FSlApzhnw2x3ALUDaVo/export?format=csv&gid=280645324"
 
 @st.cache_data
 def cargar_datos(url):
@@ -16,6 +19,7 @@ def cargar_datos(url):
     
 tabla1 = cargar_datos(url_1)
 tabla2 = cargar_datos(url_2)
+equivalencias = cargar_datos(url_3)
 
 
 # ===============================
@@ -54,10 +58,46 @@ st.header("Historial de precios")
 
 # Selector de producto
 producto = st.selectbox(
-    "Elige un ingrediente",
+    "Elige un producto",
     tabla2["Producto"].unique()
 )
 
+# Filtrar datos del producto
+fila = tabla1[tabla1["Producto"] == producto].drop(columns="Producto").T
+fila.columns = ["Precio"]
+
+# Convertir índice a fechas reales
+fila.index = pd.to_datetime(fila.index, format="%d/%m/%Y")
+
+# Eliminar precios vacíos
+fila = fila.dropna()
+
+# Mostrar gráfico
+if not fila.empty:
+    fig, ax = plt.subplots()
+    ax.plot(fila.index, fila["Precio"], marker="o")
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel("Precio (S/)")
+    ax.set_title(f"Precio de {producto} en el tiempo")
+    plt.xticks(rotation=45)
+    
+    
+    st.pyplot(fig)
+    
+    # Último precio registrado
+    ultima_fecha = fila.index.max()
+    ultimo_precio = fila.loc[ultima_fecha, "Precio"]
+    
+    
+    st.markdown("---")
+    st.subheader("Último precio registrado")
+    st.write(f"**Producto:** {producto}")
+    st.write(f"**Precio:** S/ {ultimo_precio:.2f}")
+    st.write(f"**Fecha:** {ultima_fecha.strftime('%d/%m/%Y')}")
+
+
+else:
+    st.warning("Este producto no tiene precios registrados.")
 
 # ===============================
 # SECCIÓN 3 → CHEKLIST DE COMPRAS
@@ -135,6 +175,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
