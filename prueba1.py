@@ -167,31 +167,39 @@ st.header("Costo total por índice")
 if indices:
 
     # -------- obtener último precio por producto --------
-    precios_limpios = precios.copy()
-
-    # quitar columna Producto y quedarnos con último valor
-    precios_largos = (
-        precios_limpios
-        .set_index("Producto")
-        .apply(
-            lambda fila: pd.to_numeric(
-                fila.astype(str)
-                    .str.replace("S/", "", regex=False)
-                    .str.replace(" ", "", regex=False),
-                errors="coerce"
-            ).dropna().iloc[-1] if fila.dropna().size > 0 else None,
-            axis=1
-        )
-        .rename("Precio")
-        .reset_index()
+    precios_largos = precios.melt(id_vars="Producto", var_name="Fecha", value_name="Precio")
+    
+    # limpiar precios
+    precios_largos["Precio"] = (
+        precios_largos["Precio"]
+        .astype(str)
+        .str.replace("S/", "", regex=False)
+        .str.replace(" ", "", regex=False)
     )
+    precios_largos["Precio"] = pd.to_numeric(precios_largos["Precio"], errors="coerce")
+    
+    # limpiar fechas
+    precios_largos["Fecha"] = pd.to_datetime(precios_largos["Fecha"], dayfirst=True, errors="coerce")
+    
+    # quitar vacíos
+    precios_largos = precios_largos.dropna()
+    
+    # quedarnos con el último precio real por producto
+    ultimo_precio = (
+        precios_largos
+        .sort_values("Fecha")
+        .groupby("Producto")
+        .tail(1)[["Producto", "Precio"]]
+    )
+
 
     # -------- unir con cantidades --------
     datos = df[df["Índice"].isin(indices)].merge(
-        precios_largos,
+        ultimo_precio,
         on="Producto",
         how="left"
     )
+
 
     # -------- calcular costo --------
     datos["Costo"] = datos["Cantidad"] * datos["Precio"]
@@ -250,6 +258,7 @@ if not datos_grafico.empty:
     plt.xticks(rotation=45)
 
     st.pyplot(fig)
+
 
 
 
