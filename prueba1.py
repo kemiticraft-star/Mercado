@@ -217,7 +217,9 @@ def convertir_a_kg(cantidad, unidad, producto):
     return cantidad / und_por_kg
 
 
+# ============================
 # UI
+# ============================
 
 st.title("Costo por índice")
 
@@ -235,7 +237,19 @@ for _, row in subset.iterrows():
     if precio is None:
         total = 0
     else:
-        total = kg * precio
+        # Asegurar que precio sea numérico y no None
+            if precio is None or pd.isna(precio):
+                precio = 0
+
+            # Si viene como texto tipo "S/.29.00", limpiarlo
+            if isinstance(precio, str):
+                precio = (
+                    precio.replace("S/.", "")
+                          .strip()
+                )
+                precio = float(precio) if precio else 0
+
+            total = float(kg) * float(precio)
 
     costos.append(total)
 
@@ -254,7 +268,7 @@ st.metric("Costo total", f"S/ {costo_total:,.2f}")
 totales = []
 
 for idx in indices:
-    sub = tabla_1[tabla_1["Índice"] == idx]
+    sub = tabla1[tabla1["Índice"] == idx]
     total_idx = 0
 
     for _, row in sub.iterrows():
@@ -296,6 +310,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
