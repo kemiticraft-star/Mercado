@@ -21,14 +21,22 @@ df = cargar_datos(url_compras)
 precios = cargar_datos(url_precios)
 
 # ===============================
-# LIMPIEZA DE DATOS (CLAVE)
+# LIMPIEZA FUERTE DE PRODUCTOS
 # ===============================
-df["Producto"] = df["Producto"].astype(str).str.strip().str.lower()
-precios["Producto"] = precios["Producto"].astype(str).str.strip().str.lower()
+
+def limpiar_producto(s):
+    return (
+        s.astype(str)
+        .str.lower()
+        .str.strip()
+        .str.replace(r"\s+", " ", regex=True)
+    )
+
+df["Producto"] = limpiar_producto(df["Producto"])
+precios["Producto"] = limpiar_producto(precios["Producto"])
+
 df["Cantidad"] = pd.to_numeric(df["Cantidad"], errors="coerce")
 
-st.write("Productos en compras:", df["Producto"].unique())
-st.write("Productos en precios:", precios["Producto"].unique())
 
 
 # ===============================
@@ -269,6 +277,7 @@ if not datos_grafico.empty:
     plt.xticks(rotation=45)
 
     st.pyplot(fig)
+
 
 
 
