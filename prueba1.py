@@ -235,23 +235,34 @@ def convertir_a_kg(cantidad, unidad, producto):
 st.title("Costo por índice")
 
 indices = sorted(tabla1["Índice"].unique())
-indices_sel = st.multiselect(
-    "Selecciona uno o más índices",
-    indices,
-    default=[indices[0]]
-)
+indice_sel = st.selectbox("Selecciona índice", indices)
 
-subset = tabla1[tabla1["Índice"].isin(indices_sel)].copy()
+subset = tabla1[tabla1["Índice"] == indice_sel].copy()
 
 costos = []
-indices_sel = st.multiselect(
-    "Selecciona uno o más índices",
-    indices,
-    default=[indices[0]]
-)
 
-subset = tabla1[tabla1["Índice"].isin(indices_sel)].copy()
+for _, row in subset.iterrows():
+    kg = convertir_a_kg(row["Cantidad"], row["Unidad"], row["Producto"])
+    precio = ultimo_precio(row["Producto"])
 
+    if precio is None:
+        total = 0
+    else:
+        # Asegurar que precio sea numérico y no None
+            if precio is None or pd.isna(precio):
+                precio = 0
+
+            # Si viene como texto tipo "S/.29.00", limpiarlo
+            if isinstance(precio, str):
+                precio = (
+                    precio.replace("S/.", "")
+                          .strip()
+                )
+                precio = float(precio) if precio else 0
+
+            total = float(kg) * float(precio)
+
+    costos.append(total)
 
 subset["Costo"] = costos
 
@@ -282,6 +293,7 @@ with col1:
 
 with col2:
     st.metric("Costo total general", f"S/ {total_general:,.2f}")
+
 
 
 
