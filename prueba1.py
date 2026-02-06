@@ -238,7 +238,7 @@ st.title("Costo por plato")
 
 indices = sorted(tabla1["Índice"].unique())
 indices_sel = st.multiselect(
-    "Selecciona uno o más índices",
+    "Selecciona uno o más platos",
     indices,
     default=[indices[0]]
 )
@@ -265,8 +265,9 @@ costo_total = subset["Costo"].sum()
 # TOTAL GENERAL
 costo_total = subset["Costo"].sum()
 
-st.subheader("Total de los índices seleccionados")
+st.subheader("Total de los platos seleccionados")
 st.metric("Costo total", f"S/ {costo_total:,.2f}")
+
 
 
 
