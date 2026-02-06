@@ -118,8 +118,10 @@ if indices:
     
     
     	for i, item in enumerate(st.session_state.manual_items):
-    		col_chk, col_txt, col_del = st.columns([1, 6, 1])
-    
+    		if "texto" not in item:
+                item = {"texto": str(item), "checked": False}
+            
+            col_chk, col_txt, col_del = st.columns([1, 6, 1])
     
     		with col_chk:
     			item["checked"] = st.checkbox(
@@ -239,6 +241,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
