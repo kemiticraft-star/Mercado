@@ -160,7 +160,7 @@ if indices:
         st.session_state.checklist[producto] = nuevo_valor
 
 # ===============================
-# SECCIÓN 4 → COSTO POR PLATO
+# SECCIÓN 4 → COSTO TOTAL POR PLATO
 # ===============================
 st.divider()
 st.header("Costo total por índice")
@@ -189,7 +189,50 @@ if indices:
     )
 
     precios_largos["Precio"] = pd.to_numeric(precios_largos["Precio"], errors="coerce")
-    precios_largos["Fecha"] = pd.to_datetime(precios_largos_
+    precios_largos["Fecha"] = pd.to_datetime(precios_largos["Fecha"], dayfirst=True, errors="coerce")
+    precios_largos = precios_largos.dropna()
+
+    # ---------- ÚLTIMO PRECIO POR PRODUCTO ----------
+    ultimo_precio = (
+        precios_largos
+        .sort_values("Fecha")
+        .groupby("Producto")
+        .tail(1)[["Producto", "Precio"]]
+    )
+
+    # ---------- UNIR TODO ----------
+    datos = (
+        df[df["Índice"].isin(indices)]
+        .merge(ultimo_precio, on="Producto", how="left")
+        .merge(conversion, on="Producto", how="left")
+    )
+
+    # ---------- CONVERSIÓN und → kg ----------
+    # si unidad es "und", convertir cantidad a kg usando und_por_kg
+    datos["Cantidad_kg"] = datos.apply(
+        lambda fila: fila["Cantidad"] / fila["und_por_kg"]
+        if fila["Unidad"] == "und" and pd.notna(fila["und_por_kg"])
+        else fila["Cantidad"],
+        axis=1
+    )
+
+    # ---------- COSTO ----------
+    datos["Costo"] = datos["Cantidad_kg"] * datos["Precio"]
+
+    # ---------- TABLA FINAL ----------
+    costo_por_indice = (
+        datos.groupby("Índice")["Costo"]
+        .sum()
+        .reset_index()
+        .rename(columns={"Índice": "Indice", "Costo": "Precio"})
+        .sort_values("Indice")
+    )
+
+    st.dataframe(costo_por_indice)
+
+    # ---------- TOTAL GENERAL ----------
+    total_general = costo_por_indice["Precio"].sum()
+    st.subheader(f"Total general: S/ {total_general:.2f}")
 
                                              
 # ===============================
@@ -231,4 +274,5 @@ if not datos_grafico.empty:
     plt.xticks(rotation=45)
 
     st.pyplot(fig)
+
 
