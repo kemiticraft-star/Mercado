@@ -198,9 +198,77 @@ else:
 # ===============================
 # SECCIÓN 3 → COSTO TOTAL POR PLATO
 # ===============================
+def ultimo_precio(producto):
+    fila = base2[base2["Producto"] == f"kg - {producto}"]
+    if fila.empty:
+        return None
+    return fila.iloc[0, 1]
+
+
+def convertir_a_kg(cantidad, unidad, producto):
+    if unidad == "kg":
+        return cantidad
+
+    fila = equiv[equiv["Producto"] == producto]
+    if fila.empty:
+        return 0
+
+    und_por_kg = fila["und_por_kg"].values[0]
+    return cantidad / und_por_kg
+
+
+# UI
+
+st.title("Costo por índice")
+
+indices = sorted(base1["Índice"].unique())
+indice_sel = st.selectbox("Selecciona índice", indices)
+
+subset = base1[base1["Índice"] == indice_sel].copy()
+
+costos = []
+
+for _, row in subset.iterrows():
+    kg = convertir_a_kg(row["Cantidad"], row["Unidad"], row["Producto"])
+    precio = ultimo_precio(row["Producto"])
+
+    if precio is None:
+        total = 0
+    else:
+        total = kg * precio
+
+    costos.append(total)
+
+subset["Costo"] = costos
+
+st.subheader("Detalle")
+st.dataframe(subset, use_container_width=True)
+
+costo_total = subset["Costo"].sum()
+
+st.subheader("Total del índice")
+st.metric("Costo total", f"S/ {costo_total:,.2f}")
+
+# TOTAL GENERAL
+
+totales = []
+
+for idx in indices:
+    sub = base1[base1["Índice"] == idx]
+    total_idx = 0
+
+    for _, row in sub.iterrows():
+        kg = convertir_a_kg(row["Cantidad"], row["Unidad"], row["Producto"])
+        precio = ultimo_precio(row["Producto"])
+        if precio:
+            total_idx += kg * precio
+
+    totales.append(total_idx)
+
 st.divider()
-st.header("Costo total por plato")
-                                             
+st.subheader("Total general (todos los índices)")
+st.metric("TOTAL", f"S/ {sum(totales):,.2f}")
+                             
 # ===============================
 # SECCIÓN 4 → GRÁFICO DE COSTOS
 # ===============================
@@ -228,6 +296,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
