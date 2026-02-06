@@ -138,11 +138,9 @@ if indices:
                 if st.button("❌", key=f"del_{i}"):
                     continue
     
+            nuevos_items.append(item)
     
-    		nuevos_items.append(item)
-    
-    
-    	st.session_state.manual_items = nuevos_items
+        st.session_state.manual_items = nuevos_items
     
 
 # ===============================
