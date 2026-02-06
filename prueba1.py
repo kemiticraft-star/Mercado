@@ -200,10 +200,23 @@ else:
 # ===============================
 def ultimo_precio(producto):
     fila = tabla2[tabla2["Producto"] == f"kg - {producto}"]
-    if fila.empty:
-        return None
-    return fila.iloc[0, 1]
 
+    if fila.empty:
+        return 0.0
+
+    # tomar todos los precios menos la columna "Producto"
+    precios = fila.iloc[0, 1:].dropna()
+
+    if precios.empty:
+        return 0.0
+
+    precio = precios.iloc[-1]  # ← último registrado
+
+    # limpiar texto tipo "S/.29.00"
+    if isinstance(precio, str):
+        precio = precio.replace("S/.", "").replace("S/", "").strip()
+
+    return float(precio)
 
 def convertir_a_kg(cantidad, unidad, producto):
     if unidad == "kg":
@@ -233,23 +246,6 @@ costos = []
 for _, row in subset.iterrows():
     kg = convertir_a_kg(row["Cantidad"], row["Unidad"], row["Producto"])
     precio = ultimo_precio(row["Producto"])
-
-    if precio is None:
-        total = 0
-    else:
-        # Asegurar que precio sea numérico y no None
-            if precio is None or pd.isna(precio):
-                precio = 0
-
-            # Si viene como texto tipo "S/.29.00", limpiarlo
-            if isinstance(precio, str):
-                precio = (
-                    precio.replace("S/.", "")
-                          .strip()
-                )
-                precio = float(precio) if precio else 0
-
-            total = float(kg) * float(precio)
 
     costos.append(total)
 
@@ -282,6 +278,7 @@ for idx in indices:
 st.divider()
 st.subheader("Total general (todos los índices)")
 st.metric("TOTAL", f"S/ {sum(totales):,.2f}")
+
 
 
 
