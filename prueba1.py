@@ -21,6 +21,13 @@ df = cargar_datos(url_compras)
 precios = cargar_datos(url_precios)
 
 # ===============================
+# LIMPIEZA DE DATOS (CLAVE)
+# ===============================
+df["Producto"] = df["Producto"].astype(str).str.strip().str.lower()
+precios["Producto"] = precios["Producto"].astype(str).str.strip().str.lower()
+df["Cantidad"] = pd.to_numeric(df["Cantidad"], errors="coerce")
+
+# ===============================
 # SECCIÓN 1 → LISTA DE COMPRAS
 # ===============================
 st.subheader("Tabla original")
@@ -258,6 +265,7 @@ if not datos_grafico.empty:
     plt.xticks(rotation=45)
 
     st.pyplot(fig)
+
 
 
 
