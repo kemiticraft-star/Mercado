@@ -55,36 +55,39 @@ if indices:
     
     # Crear estado persistente si no existe
     if "check_estado" not in st.session_state:
-        st.session_state.check_estado = {}
+    	st.session_state.check_estado = {}
     
     
-    # Crear claves únicas por producto (unidad + nombre)
+    # Crear claves únicas por producto (unidad + nombre + cantidad)
+    # Si cambia la cantidad, se considera un item nuevo y el checkbox se reinicia
     claves_actuales = set()
     
     
     for _, fila in resultado.iterrows():
-        clave = f"{fila['Unidad']} - {fila['Producto']}"
-        claves_actuales.add(clave)
-        
-        
-        # Si el producto es nuevo, iniciar en False
-        if clave not in st.session_state.check_estado:
-            st.session_state.check_estado[clave] = False
+    	clave = f"{fila['Unidad']} - {fila['Producto']} - {fila['Cantidad']}"
+    	claves_actuales.add(clave)
     
     
-        # Mostrar checkbox manteniendo estado previo
-        st.session_state.check_estado[clave] = st.checkbox(
-            f"{fila['Cantidad']} {fila['Unidad']} {fila['Producto']}",
-            value=st.session_state.check_estado[clave],
-            key=f"chk_{clave}"
-        )
+    	# Si el producto/cantidad es nuevo, iniciar en False
+    	if clave not in st.session_state.check_estado:
+    		st.session_state.check_estado[clave] = False
     
     
-        # Eliminar del estado productos que ya no están en la lista
-        claves_guardadas = set(st.session_state.check_estado.keys())
-        for clave in claves_guardadas - claves_actuales:
-            del st.session_state.check_estado[clave]
-
+    	# Mostrar checkbox manteniendo estado previo solo si la cantidad no cambió
+    	st.session_state.check_estado[clave] = st.checkbox(
+    		f"{fila['Cantidad']} {fila['Unidad']} {fila['Producto']}",
+    		value=st.session_state.check_estado[clave],
+    		key=f"chk_{clave}"
+    	)
+    
+    
+    	# Eliminar del estado productos que ya no están en la lista
+    	claves_guardadas = set(st.session_state.check_estado.keys())
+    	for clave in claves_guardadas - claves_actuales:
+    		del st.session_state.check_estado[clave]
+    	claves_guardadas = set(st.session_state.check_estado.keys())
+    	for clave in claves_guardadas - claves_actuales:
+    		del st.session_state.check_estado[clave]
 
 # ===============================
 # SECCIÓN 2 → PRECIOS HISTÓRICOS
@@ -224,6 +227,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
