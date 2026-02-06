@@ -131,12 +131,12 @@ if indices:
     			)
     
             with col_txt:
-    			st.write(item["texto"])
+                st.write(item["texto"])
     
     
-    		with col_del:
-    			if st.button("❌", key=f"del_{i}"):
-    				continue
+            with col_del:
+                if st.button("❌", key=f"del_{i}"):
+                    continue
     
     
     		nuevos_items.append(item)
@@ -240,6 +240,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
