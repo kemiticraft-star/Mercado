@@ -152,56 +152,13 @@ else:
         st.warning("Este producto no tiene precios registrados.")
 
 # ===============================
-# SECCIÓN 3 → CHEKLIST DE COMPRAS
-# ===============================
-st.divider()
-st.header("Checklist de compras")
-
-if indices:
-
-    filtrado = tabla1[tabla1["Índice"].isin(indices)]
-
-    resumen = (
-        filtrado
-        .groupby(["Unidad", "Producto"], as_index=False)["Cantidad"]
-        .sum()
-        .sort_values("Producto")
-    )
-
-    # --- inicializar estado ---
-    if "checklist" not in st.session_state:
-        st.session_state.checklist = {}
-
-    # eliminar productos que ya no están
-    productos_actuales = set(resumen["Producto"])
-    st.session_state.checklist = {
-        k: v for k, v in st.session_state.checklist.items()
-        if k in productos_actuales
-    }
-
-    st.subheader("Marca lo que ya compraste")
-
-    for _, fila in resumen.iterrows():
-        producto = fila["Producto"]
-
-        checked = st.session_state.checklist.get(producto, False)
-
-        nuevo_valor = st.checkbox(
-            f'{fila["Cantidad"]} {fila["Unidad"]} {producto}',
-            value=checked,
-            key=f"check_{producto}"
-        )
-
-        st.session_state.checklist[producto] = nuevo_valor
-
-# ===============================
-# SECCIÓN 4 → COSTO TOTAL POR PLATO
+# SECCIÓN 3 → COSTO TOTAL POR PLATO
 # ===============================
 st.divider()
 st.header("Costo total por plato")
                                              
 # ===============================
-# SECCIÓN 5 → GRÁFICO DE COSTOS
+# SECCIÓN 4 → GRÁFICO DE COSTOS
 # ===============================
 
 st.divider()
@@ -227,6 +184,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
