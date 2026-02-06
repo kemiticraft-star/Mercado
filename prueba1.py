@@ -89,6 +89,70 @@ if indices:
     	for clave in claves_guardadas - claves_actuales:
     		del st.session_state.check_estado[clave]
 
+    
+    # INGRESO MANUAL DE INGREDIENTES
+    st.subheader("Agregar ingrediente manual")
+    
+    
+    if "manual_items" not in st.session_state:
+    	st.session_state.manual_items = []
+    
+    
+    col1, col2, col3 = st.columns(3)
+    
+    
+    with col1:
+    	cant_manual = st.text_input("Cantidad", key="cant_manual")
+    with col2:
+    	unidad_manual = st.text_input("Unidad", key="unidad_manual")
+    with col3:
+    	prod_manual = st.text_input("Producto", key="prod_manual")
+    
+    
+    if st.button("Agregar ingrediente"):
+    	if prod_manual:
+    		st.session_state.manual_items.append({
+    			"Cantidad": cant_manual,
+    			"Unidad": unidad_manual,
+    			"Producto": prod_manual,
+    			"checked": False,
+    		})
+    
+    
+    # Mostrar ingredientes manuales con checkbox y opción de eliminar
+    if st.session_state.manual_items:
+    	st.markdown("### Ingredientes manuales")
+    
+    
+    	nuevos_items = []
+    
+    
+    	for i, item in enumerate(st.session_state.manual_items):
+    		col_chk, col_txt, col_del = st.columns([1, 6, 1])
+    
+    
+    		with col_chk:
+    			item["checked"] = st.checkbox(
+    				"",
+    				value=item["checked"],
+    				key=f"manual_chk_{i}"
+    			)
+    
+    
+    		with col_txt:
+    			st.write(f"{item['Cantidad']} {item['Unidad']} {item['Producto']}")
+    
+    
+    		with col_del:
+    			if st.button("❌", key=f"del_{i}"):
+    				continue
+    
+    
+    		nuevos_items.append(item)
+    
+    
+    	st.session_state.manual_items = nuevos_items
+
 # ===============================
 # SECCIÓN 2 → PRECIOS HISTÓRICOS
 # ===============================
@@ -184,6 +248,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
