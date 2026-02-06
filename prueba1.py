@@ -79,9 +79,7 @@ else:
     # Limpiar símbolo de moneda si viene como texto
     fila["Precio"] = (
         fila["Precio"].astype(str)
-        .str.replace("S/", "", regex=False)
-        .str.replace(".", "", regex=False)
-        .str.replace(",", ".", regex=False)
+        .str.replace("S/.", "", regex=False)
     )
 
     fila["Precio"] = pd.to_numeric(fila["Precio"], errors="coerce")
@@ -192,6 +190,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
