@@ -64,7 +64,7 @@ st.header("Checklist de compras")
 
 if indices:
 
-    filtrado = df[df["Índice"].isin(indices)]
+    filtrado = tabla1[tabla1["Índice"].isin(indices)]
 
     resumen = (
         filtrado
@@ -132,6 +132,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
