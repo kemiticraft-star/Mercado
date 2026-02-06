@@ -199,7 +199,7 @@ else:
 # SECCIÓN 3 → COSTO TOTAL POR PLATO
 # ===============================
 def ultimo_precio(producto):
-    fila = tabla_2[tabla_2["Producto"] == f"kg - {producto}"]
+    fila = tabla2[tabla2["Producto"] == f"kg - {producto}"]
     if fila.empty:
         return None
     return fila.iloc[0, 1]
@@ -221,10 +221,10 @@ def convertir_a_kg(cantidad, unidad, producto):
 
 st.title("Costo por índice")
 
-indices = sorted(tabla_1["Índice"].unique())
+indices = sorted(tabla1["Índice"].unique())
 indice_sel = st.selectbox("Selecciona índice", indices)
 
-subset = tabla_1[tabla_1["Índice"] == indice_sel].copy()
+subset = tabla1[tabla1["Índice"] == indice_sel].copy()
 
 costos = []
 
@@ -296,6 +296,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
