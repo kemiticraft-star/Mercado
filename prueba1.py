@@ -65,36 +65,57 @@ fila_producto = precios[precios["Producto"] == producto]
 
 if not fila_producto.empty:
 
-    # Quitar columna Producto y convertir a formato largo
+    # Pasar a formato vertical
     serie = fila_producto.drop(columns=["Producto"]).T
     serie.columns = ["Precio"]
     serie.index.name = "Fecha"
 
-    # Convertir fechas
+    # ---- LIMPIAR PRECIOS ----
+    serie["Precio"] = (
+        serie["Precio"]
+        .astype(str)
+        .str.replace("S/", "", regex=False)
+        .str.replace(" ", "", regex=False)
+    )
+
+    serie["Precio"] = pd.to_numeric(serie["Precio"], errors="coerce")
+
+    # ---- LIMPIAR FECHAS ----
     serie.index = pd.to_datetime(serie.index, dayfirst=True, errors="coerce")
 
-    # Quitar vacíos
+    # quitar vacíos
     serie = serie.dropna()
 
-    # -------- Gráfico --------
-    fig, ax = plt.subplots()
-    ax.plot(serie.index, serie["Precio"], marker="o")
-    ax.set_xlabel("Fecha")
-    ax.set_ylabel("Precio (S/)")
-    ax.set_title(f"Precio histórico de {producto}")
-    ax.grid(True)
+    if not serie.empty:
 
-    st.pyplot(fig)
+        # -------- GRÁFICO --------
+        fig, ax = plt.subplots()
 
-    # -------- Último precio --------
-    ultimo_precio = serie["Precio"].iloc[-1]
-    ultima_fecha = serie.index[-1].strftime("%d/%m/%Y")
+        ax.plot(serie.index, serie["Precio"], marker="o")
 
-    st.metric(
-        label=f"Último precio de {producto}",
-        value=f"S/ {ultimo_precio:.2f}",
-        delta=f"Registrado el {ultima_fecha}"
-    )
+        # mejorar eje X
+        fig.autofmt_xdate(rotation=45)
+        ax.set_xlabel("Fecha")
+        ax.set_ylabel("Precio (S/)")
+        ax.set_title(f"Precio histórico de {producto}")
+        ax.grid(True)
+
+        st.pyplot(fig)
+
+        # -------- ÚLTIMO PRECIO --------
+        ultimo_precio = serie["Precio"].iloc[-1]
+        ultima_fecha = serie.index[-1].strftime("%d/%m/%Y")
+
+        st.metric(
+            label=f"Último precio de {producto}",
+            value=f"S/ {ultimo_precio:.2f}",
+            delta=f"Registrado el {ultima_fecha}"
+        )
+
+    else:
+        st.warning("Este producto no tiene precios registrados.")
+
+
 
 
 
