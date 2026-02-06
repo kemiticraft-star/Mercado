@@ -201,25 +201,36 @@ else:
 def ultimo_precio(producto):
     fila = tabla2[tabla2["Producto"] == f"kg - {producto}"]
     if fila.empty:
-        return None
-    return fila.iloc[0, 1]
+        return 0.0
+
+    # Tomar el ÚLTIMO precio no vacío en la fila
+    precios = fila.iloc[0, 1:].dropna()
+    if precios.empty:
+        return 0.0
+
+    precio = precios.iloc[-1]
+
+    # Limpiar texto tipo "S/.29.00"
+    if isinstance(precio, str):
+        precio = precio.replace("S/.", "").strip()
+        precio = float(precio) if precio else 0.0
+
+    return float(precio)
 
 
 def convertir_a_kg(cantidad, unidad, producto):
     if unidad == "kg":
-        return cantidad
+        return float(cantidad)
 
     fila = equivalencias[equivalencias["Producto"] == producto]
     if fila.empty:
-        return 0
+        return 0.0
 
     und_por_kg = fila["und_por_kg"].values[0]
-    return cantidad / und_por_kg
+    return float(cantidad) / float(und_por_kg)
 
 
-# ============================
 # UI
-# ============================
 
 st.title("Costo por índice")
 
@@ -229,39 +240,24 @@ indice_sel = st.selectbox("Selecciona índice", indices)
 subset = tabla1[tabla1["Índice"] == indice_sel].copy()
 
 costos = []
+total_idx = 0.0
 
 for _, row in subset.iterrows():
     kg = convertir_a_kg(row["Cantidad"], row["Unidad"], row["Producto"])
     precio = ultimo_precio(row["Producto"])
 
-    if precio is None:
-        total = 0
-    else:
-        # Asegurar que precio sea numérico y no None
-            if precio is None or pd.isna(precio):
-                precio = 0
-
-            # Si viene como texto tipo "S/.29.00", limpiarlo
-            if isinstance(precio, str):
-                precio = (
-                    precio.replace("S/.", "")
-                          .strip()
-                )
-                precio = float(precio) if precio else 0
-
-            total = float(kg) * float(precio)
+    total = kg * precio
 
     costos.append(total)
+    total_idx += total
 
 subset["Costo"] = costos
 
 st.subheader("Detalle")
 st.dataframe(subset, use_container_width=True)
 
-costo_total = subset["Costo"].sum()
-
 st.subheader("Total del índice")
-st.metric("Costo total", f"S/ {costo_total:,.2f}")
+st.metric("Costo total", f"S/ {total_idx:,.2f}")
 
 # TOTAL GENERAL
 
@@ -282,6 +278,7 @@ for idx in indices:
 st.divider()
 st.subheader("Total general (todos los índices)")
 st.metric("TOTAL", f"S/ {sum(totales):,.2f}")
+
                              
 # ===============================
 # SECCIÓN 4 → GRÁFICO DE COSTOS
@@ -310,6 +307,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
