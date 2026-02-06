@@ -244,16 +244,14 @@ indices_sel = st.multiselect(
 subset = tabla1[tabla1["Índice"].isin(indices_sel)].copy()
 
 costos = []
-total_idx = 0.0
+indices_sel = st.multiselect(
+    "Selecciona uno o más índices",
+    indices,
+    default=[indices[0]]
+)
 
-for _, row in subset.iterrows():
-    kg = convertir_a_kg(row["Cantidad"], row["Unidad"], row["Producto"])
-    precio = ultimo_precio(row["Producto"])
+subset = tabla1[tabla1["Índice"].isin(indices_sel)].copy()
 
-    total = kg * precio
-
-    costos.append(total)
-    total_idx += total
 
 subset["Costo"] = costos
 
@@ -280,10 +278,11 @@ total_general = sum(totales)
 col1, col2 = st.columns(2)
 
 with col1:
-    st.metric("Costo total de los platos seleccionados", f"S/ {total_idx:,.2f}")
+    st.metric("Costo del plato", f"S/ {total_idx:,.2f}")
 
 with col2:
     st.metric("Costo total general", f"S/ {total_general:,.2f}")
+
 
 
 
