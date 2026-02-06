@@ -159,23 +159,57 @@ if indices:
         st.session_state.checklist[producto] = nuevo_valor
 
 # ===============================
-# TABLA DE COSTOS POR ÍNDICE
+# COSTO TOTAL POR ÍNDICE
 # ===============================
 st.divider()
-st.header("Costos por índice")
+st.header("Costo total por índice")
 
-tabla_indices = (
-    df[df["Índice"].isin(indices)]
-    .groupby(["Índice", "Unidad", "Producto"], as_index=False)["Cantidad"]
-    .sum()
-)
+if indices:
 
-st.dataframe(tabla_indices)
+    # -------- obtener último precio por producto --------
+    precios_limpios = precios.copy()
 
-# --- total general ---
-total_general = tabla_indices["Cantidad"].sum()
+    # quitar columna Producto y quedarnos con último valor
+    precios_largos = (
+        precios_limpios
+        .set_index("Producto")
+        .apply(
+            lambda fila: pd.to_numeric(
+                fila.astype(str)
+                    .str.replace("S/", "", regex=False)
+                    .str.replace(" ", "", regex=False),
+                errors="coerce"
+            ).dropna().iloc[-1] if fila.dropna().size > 0 else None,
+            axis=1
+        )
+        .rename("Precio")
+        .reset_index()
+    )
 
-st.subheader(f"Total general: {total_general}")
+    # -------- unir con cantidades --------
+    datos = df[df["Índice"].isin(indices)].merge(
+        precios_largos,
+        on="Producto",
+        how="left"
+    )
+
+    # -------- calcular costo --------
+    datos["Costo"] = datos["Cantidad"] * datos["Precio"]
+
+    # -------- total por índice --------
+    costo_por_indice = (
+        datos.groupby("Índice")["Costo"]
+        .sum()
+        .reset_index()
+        .sort_values("Índice")
+    )
+
+    st.dataframe(costo_por_indice)
+
+    # -------- total general --------
+    total_general = costo_por_indice["Costo"].sum()
+
+    st.subheader(f"Total general: S/ {total_general:.2f}")
 
 # ===============================
 # GRÁFICO DE COSTOS
@@ -216,5 +250,6 @@ if not datos_grafico.empty:
     plt.xticks(rotation=45)
 
     st.pyplot(fig)
+
 
 
