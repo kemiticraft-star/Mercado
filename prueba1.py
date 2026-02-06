@@ -10,9 +10,12 @@ url_1 = "https://docs.google.com/spreadsheets/d/1hfUF27WMtRIFtnqqgbZX3NU5FSlApzh
 # --- URL de la tabla de precios (Base 2) ---
 url_2 = "https://docs.google.com/spreadsheets/d/1hfUF27WMtRIFtnqqgbZX3NU5FSlApzhnw2x3ALUDaVo/export?format=csv&gid=1970064496"
 
-
-tabla1 = pd.read_csv(url_1)
-tabla2 = pd.read_csv(url_2)
+@st.cache_data
+def cargar_datos(url):
+    return pd.read_csv(url)
+    
+tabla1 = cargar_datos(url_1)
+tabla2 = cargar_datos(url_2)
 
 
 # ===============================
@@ -132,6 +135,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
