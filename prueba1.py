@@ -122,8 +122,8 @@ if indices:
                 item = {"texto": str(item), "checked": False}
             
             col_chk, col_txt, col_del = st.columns([1, 6, 1])
-    
-    		with col_chk:
+            
+            with col_chk:
     			item["checked"] = st.checkbox(
     				"",
     				value=item["checked"],
@@ -241,6 +241,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
