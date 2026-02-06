@@ -23,7 +23,7 @@ precios = cargar_datos(url_precios)
 # ===============================
 # SECCIÓN 1 → LISTA DE COMPRAS
 # ===============================
-st.subheader("Tabla original", text_alignment="center")
+st.subheader("Tabla original")
 st.dataframe(df)
 
 indices = st.multiselect(
@@ -95,6 +95,7 @@ if not fila_producto.empty:
         value=f"S/ {ultimo_precio:.2f}",
         delta=f"Registrado el {ultima_fecha}"
     )
+
 
 
 
