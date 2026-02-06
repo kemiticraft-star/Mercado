@@ -201,36 +201,25 @@ else:
 def ultimo_precio(producto):
     fila = tabla2[tabla2["Producto"] == f"kg - {producto}"]
     if fila.empty:
-        return 0.0
-
-    # Tomar el ÚLTIMO precio no vacío en la fila
-    precios = fila.iloc[0, 1:].dropna()
-    if precios.empty:
-        return 0.0
-
-    precio = precios.iloc[-1]
-
-    # Limpiar texto tipo "S/.29.00"
-    if isinstance(precio, str):
-        precio = precio.replace("S/.", "").strip()
-        precio = float(precio) if precio else 0.0
-
-    return float(precio)
+        return None
+    return fila.iloc[0, 1]
 
 
 def convertir_a_kg(cantidad, unidad, producto):
     if unidad == "kg":
-        return float(cantidad)
+        return cantidad
 
     fila = equivalencias[equivalencias["Producto"] == producto]
     if fila.empty:
-        return 0.0
+        return 0
 
     und_por_kg = fila["und_por_kg"].values[0]
-    return float(cantidad) / float(und_por_kg)
+    return cantidad / und_por_kg
 
 
+# ============================
 # UI
+# ============================
 
 st.title("Costo por índice")
 
@@ -269,30 +258,30 @@ subset["Costo"] = costos
 st.subheader("Detalle")
 st.dataframe(subset, use_container_width=True)
 
-# Calcular total general
+costo_total = subset["Costo"].sum()
+
+st.subheader("Total del índice")
+st.metric("Costo total", f"S/ {costo_total:,.2f}")
+
+# TOTAL GENERAL
+
 totales = []
 
 for idx in indices:
     sub = tabla1[tabla1["Índice"] == idx]
-    total_tmp = 0
+    total_idx = 0
 
     for _, row in sub.iterrows():
         kg = convertir_a_kg(row["Cantidad"], row["Unidad"], row["Producto"])
         precio = ultimo_precio(row["Producto"])
-        total_tmp += kg * precio
+        if precio:
+            total_idx += kg * precio
 
-    totales.append(total_tmp)
+    totales.append(total_idx)
 
-total_general = sum(totales)
-
-# Mostrar en columnas (lado a lado)
-col1, col2 = st.columns(2)
-
-with col1:
-    st.metric("Costo del plato", f"S/ {total_idx:,.2f}")
-
-with col2:
-    st.metric("Costo total general", f"S/ {total_general:,.2f}")
+st.divider()
+st.subheader("Total general (todos los índices)")
+st.metric("TOTAL", f"S/ {sum(totales):,.2f}")
 
 
 
