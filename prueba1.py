@@ -237,21 +237,25 @@ def convertir_a_kg(cantidad, unidad, producto):
 st.title("Costo por plato")
 
 indices = sorted(tabla1["Índice"].unique())
-indice_sel = st.selectbox("Selecciona un plato", indices)
+indices_sel = st.multiselect(
+    "Selecciona uno o más índices",
+    indices,
+    default=[indices[0]]
+)
 
-subset = tabla1[tabla1["Índice"] == indice_sel].copy()
+subset = tabla1[tabla1["Índice"].isin(indices_sel)].copy()
+# Agrupar productos iguales y sumar cantidades
+subset = (
+    subset
+    .groupby(["Unidad", "Producto"], as_index=False)["Cantidad"]
+    .sum()
+)
 
-costos = []
-
-for _, row in subset.iterrows():
-    kg = convertir_a_kg(row["Cantidad"], row["Unidad"], row["Producto"])
-    precio = ultimo_precio(row["Producto"])
-
-    total = kg * precio
-    costos.append(total)
-
-
-subset["Costo"] = costos
+subset["Costo"] = subset.apply(
+    lambda row: convertir_a_kg(row["Cantidad"], row["Unidad"], row["Producto"])
+                * ultimo_precio(row["Producto"]),
+    axis=1
+)
 
 st.subheader("Detalle")
 st.dataframe(subset, use_container_width=True)
@@ -259,28 +263,10 @@ st.dataframe(subset, use_container_width=True)
 costo_total = subset["Costo"].sum()
 
 # TOTAL GENERAL
+costo_total = subset["Costo"].sum()
 
-totales = []
+st.subheader("Total de los índices seleccionados")
+st.metric("Costo total", f"S/ {costo_total:,.2f}")
 
-for idx in indices:
-    sub = tabla1[tabla1["Índice"] == idx]
-    total_idx = 0
 
-    for _, row in sub.iterrows():
-        kg = convertir_a_kg(row["Cantidad"], row["Unidad"], row["Producto"])
-        precio = ultimo_precio(row["Producto"])
-        if precio:
-            total_idx += kg * precio
-
-    totales.append(total_idx)
-
-total_general = sum(totales)
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.metric("Costo del plato seleccionado", f"S/ {costo_total:,.2f}")
-
-with col2:
-    st.metric("Costo total General", f"S/ {total_general:,.2f}")
 
