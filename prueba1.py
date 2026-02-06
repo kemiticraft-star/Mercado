@@ -27,6 +27,10 @@ df["Producto"] = df["Producto"].astype(str).str.strip().str.lower()
 precios["Producto"] = precios["Producto"].astype(str).str.strip().str.lower()
 df["Cantidad"] = pd.to_numeric(df["Cantidad"], errors="coerce")
 
+st.write("Productos en compras:", df["Producto"].unique())
+st.write("Productos en precios:", precios["Producto"].unique())
+
+
 # ===============================
 # SECCIÓN 1 → LISTA DE COMPRAS
 # ===============================
@@ -265,6 +269,7 @@ if not datos_grafico.empty:
     plt.xticks(rotation=45)
 
     st.pyplot(fig)
+
 
 
 
