@@ -115,8 +115,106 @@ if not fila_producto.empty:
     else:
         st.warning("Este producto no tiene precios registrados.")
 
+# ===============================
+# CHECKLIST DE COMPRAS
+# ===============================
+st.divider()
+st.header("Checklist de compras")
 
+if indices:
 
+    filtrado = df[df["Índice"].isin(indices)]
 
+    resumen = (
+        filtrado
+        .groupby(["Unidad", "Producto"], as_index=False)["Cantidad"]
+        .sum()
+        .sort_values("Producto")
+    )
+
+    # --- inicializar estado ---
+    if "checklist" not in st.session_state:
+        st.session_state.checklist = {}
+
+    # eliminar productos que ya no están
+    productos_actuales = set(resumen["Producto"])
+    st.session_state.checklist = {
+        k: v for k, v in st.session_state.checklist.items()
+        if k in productos_actuales
+    }
+
+    st.subheader("Marca lo que ya compraste")
+
+    for _, fila in resumen.iterrows():
+        producto = fila["Producto"]
+
+        checked = st.session_state.checklist.get(producto, False)
+
+        nuevo_valor = st.checkbox(
+            f'{fila["Cantidad"]} {fila["Unidad"]} {producto}',
+            value=checked,
+            key=f"check_{producto}"
+        )
+
+        st.session_state.checklist[producto] = nuevo_valor
+
+# ===============================
+# TABLA DE COSTOS POR ÍNDICE
+# ===============================
+st.divider()
+st.header("Costos por índice")
+
+tabla_indices = (
+    df[df["Índice"].isin(indices)]
+    .groupby(["Índice", "Unidad", "Producto"], as_index=False)["Cantidad"]
+    .sum()
+)
+
+st.dataframe(tabla_indices)
+
+# --- total general ---
+total_general = tabla_indices["Cantidad"].sum()
+
+st.subheader(f"Total general: {total_general}")
+
+# ===============================
+# GRÁFICO DE COSTOS
+# ===============================
+import matplotlib.pyplot as plt
+
+st.divider()
+st.header("Ingrediente más costoso")
+
+opciones = ["Total"] + sorted(indices)
+
+seleccion = st.selectbox("Ver costos de:", opciones)
+
+if seleccion == "Total":
+    datos_grafico = (
+        df[df["Índice"].isin(indices)]
+        .groupby("Producto")["Cantidad"]
+        .sum()
+        .sort_values(ascending=False)
+    )
+else:
+    datos_grafico = (
+        df[df["Índice"] == seleccion]
+        .groupby("Producto")["Cantidad"]
+        .sum()
+        .sort_values(ascending=False)
+    )
+
+if not datos_grafico.empty:
+
+    fig, ax = plt.subplots()
+
+    datos_grafico.plot(kind="bar", ax=ax)
+
+    ax.set_ylabel("Cantidad")
+    ax.set_xlabel("Producto")
+    ax.set_title("Costo por ingrediente")
+    plt.xticks(rotation=45)
+
+    st.pyplot(fig)
 
 
