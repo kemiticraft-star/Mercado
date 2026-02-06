@@ -31,7 +31,7 @@ st.subheader("Tabla original")
 st.dataframe(tabla1)
 
 indices = st.multiselect(
-    "Selecciona los índices",
+    "Selecciona los platos",
     sorted(tabla1["Índice"].unique())
 )
 
@@ -234,10 +234,10 @@ def convertir_a_kg(cantidad, unidad, producto):
 # UI
 # ============================
 
-st.title("Costo por índice")
+st.title("Costo por plato")
 
 indices = sorted(tabla1["Índice"].unique())
-indice_sel = st.selectbox("Selecciona índice", indices)
+indice_sel = st.selectbox("Selecciona un plato", indices)
 
 subset = tabla1[tabla1["Índice"] == indice_sel].copy()
 
@@ -279,10 +279,11 @@ total_general = sum(totales)
 col1, col2 = st.columns(2)
 
 with col1:
-    st.metric("Costo del índice seleccionado", f"S/ {costo_total:,.2f}")
+    st.metric("Costo del plato seleccionado", f"S/ {costo_total:,.2f}")
 
 with col2:
-    st.metric("Costo total de todos los índices", f"S/ {total_general:,.2f}")
+    st.metric("Costo total General", f"S/ {total_general:,.2f}")
+
 
 
 
