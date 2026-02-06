@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-st.title("Mercado")
+st.title("Mercado", text_alignment="center")
 
 # --- URL del Google Sheets (tabla de compras) ---
 url_compras = "https://docs.google.com/spreadsheets/d/1hfUF27WMtRIFtnqqgbZX3NU5FSlApzhnw2x3ALUDaVo/export?format=csv"
@@ -95,5 +95,6 @@ if not fila_producto.empty:
         value=f"S/ {ultimo_precio:.2f}",
         delta=f"Registrado el {ultima_fecha}"
     )
+
 
 
