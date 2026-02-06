@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import openpyxl
 
 st.title("Mercado", text_alignment="center")
 
@@ -33,4 +32,5 @@ if indices:
     st.subheader("Lista de compras")
     for _, fila in resultado.iterrows():
         st.write(f'{fila["Cantidad"]} {fila["Unidad"]} {fila["Producto"]}')
+
 
