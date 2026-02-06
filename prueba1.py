@@ -20,24 +20,6 @@ def cargar_datos(url):
 df = cargar_datos(url_compras)
 precios = cargar_datos(url_precios)
 
-# ===============================
-# LIMPIEZA FUERTE DE PRODUCTOS
-# ===============================
-
-def limpiar_producto(s):
-    return (
-        s.astype(str)
-        .str.lower()
-        .str.strip()
-        .str.replace(r"\s+", " ", regex=True)
-    )
-
-df["Producto"] = limpiar_producto(df["Producto"])
-precios["Producto"] = limpiar_producto(precios["Producto"])
-
-df["Cantidad"] = pd.to_numeric(df["Cantidad"], errors="coerce")
-
-
 
 # ===============================
 # SECCIÓN 1 → LISTA DE COMPRAS
@@ -135,7 +117,7 @@ if not fila_producto.empty:
         st.warning("Este producto no tiene precios registrados.")
 
 # ===============================
-# CHECKLIST DE COMPRAS
+# SECCIÓN 3 → CHEKLIST DE COMPRAS
 # ===============================
 st.divider()
 st.header("Checklist de compras")
@@ -178,68 +160,40 @@ if indices:
         st.session_state.checklist[producto] = nuevo_valor
 
 # ===============================
-# COSTO TOTAL POR ÍNDICE
+# SECCIÓN 4 → COSTO POR PLATO
 # ===============================
 st.divider()
 st.header("Costo total por índice")
 
 if indices:
 
-    # -------- obtener último precio por producto --------
-    precios_largos = precios.melt(id_vars="Producto", var_name="Fecha", value_name="Precio")
-    
-    # limpiar precios
+    # ---------- CARGAR TABLA DE CONVERSIÓN (HOJA 3) ----------
+    url_conversion = "https://docs.google.com/spreadsheets/d/1hfUF27WMtRIFtnqqgbZX3NU5FSlApzhnw2x3ALUDaVo/export?format=csv&gid=HOJA3_GID"
+    conversion = cargar_datos(url_conversion)
+
+    # limpiar nombres
+    conversion.columns = ["Producto", "und_por_kg"]
+
+    # ---------- LIMPIAR PRECIOS (HOJA 2) ----------
+    precios_largos = precios.melt(
+        id_vars="Producto",
+        var_name="Fecha",
+        value_name="Precio"
+    )
+
     precios_largos["Precio"] = (
         precios_largos["Precio"]
         .astype(str)
         .str.replace("S/", "", regex=False)
         .str.replace(" ", "", regex=False)
     )
+
     precios_largos["Precio"] = pd.to_numeric(precios_largos["Precio"], errors="coerce")
-    
-    # limpiar fechas
-    precios_largos["Fecha"] = pd.to_datetime(precios_largos["Fecha"], dayfirst=True, errors="coerce")
-    
-    # quitar vacíos
-    precios_largos = precios_largos.dropna()
-    
-    # quedarnos con el último precio real por producto
-    ultimo_precio = (
-        precios_largos
-        .sort_values("Fecha")
-        .groupby("Producto")
-        .tail(1)[["Producto", "Precio"]]
-    )
+    precios_largos["Fecha"] = pd.to_datetime(precios_largos_
 
-
-    # -------- unir con cantidades --------
-    datos = df[df["Índice"].isin(indices)].merge(
-        ultimo_precio,
-        on="Producto",
-        how="left"
-    )
-
-
-    # -------- calcular costo --------
-    datos["Costo"] = datos["Cantidad"] * datos["Precio"]
-
-    # -------- total por índice --------
-    costo_por_indice = (
-        datos.groupby("Índice")["Costo"]
-        .sum()
-        .reset_index()
-        .sort_values("Índice")
-    )
-
-    st.dataframe(costo_por_indice)
-
-    # -------- total general --------
-    total_general = costo_por_indice["Costo"].sum()
-
-    st.subheader(f"Total general: S/ {total_general:.2f}")
-
+                                             
 # ===============================
-# GRÁFICO DE COSTOS
+# SECCIÓN 5 → GRÁFICO DE COSTOS
 # ===============================
 import matplotlib.pyplot as plt
 
@@ -277,10 +231,4 @@ if not datos_grafico.empty:
     plt.xticks(rotation=45)
 
     st.pyplot(fig)
-
-
-
-
-
-
 
