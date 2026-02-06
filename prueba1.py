@@ -51,95 +51,85 @@ if indices:
     # LISTA DE COMPRAS CON CHECKBOXES
     # -------------------------------
     st.subheader("Lista de compras")
-    
-    
+
     # Crear estado persistente si no existe
     if "check_estado" not in st.session_state:
-    	st.session_state.check_estado = {}
-    
-    
+        st.session_state.check_estado = {}
+
     # Crear claves únicas por producto (unidad + nombre + cantidad)
     # Si cambia la cantidad, se considera un item nuevo y el checkbox se reinicia
     claves_actuales = set()
-    
-    
-    for _, fila in resultado.iterrows():
-    	clave = f"{fila['Unidad']} - {fila['Producto']} - {fila['Cantidad']}"
-    	claves_actuales.add(clave)
-    
-    
-    	# Si el producto/cantidad es nuevo, iniciar en False
-    	if clave not in st.session_state.check_estado:
-    		st.session_state.check_estado[clave] = False
-    
-    
-    	# Mostrar checkbox manteniendo estado previo solo si la cantidad no cambió
-    	st.session_state.check_estado[clave] = st.checkbox(
-    		f"{fila['Cantidad']} {fila['Unidad']} {fila['Producto']}",
-    		value=st.session_state.check_estado[clave],
-    		key=f"chk_{clave}"
-    	)
-    
-    
-    	# Eliminar del estado productos que ya no están en la lista
-    	claves_guardadas = set(st.session_state.check_estado.keys())
-    	for clave in claves_guardadas - claves_actuales:
-    		del st.session_state.check_estado[clave]
-    	claves_guardadas = set(st.session_state.check_estado.keys())
-    	for clave in claves_guardadas - claves_actuales:
-    		del st.session_state.check_estado[clave]
 
-    
-    # INGRESO MANUAL SIMPLE
+    for _, fila in resultado.iterrows():
+        clave = f"{fila['Unidad']} - {fila['Producto']} - {fila['Cantidad']}"
+        claves_actuales.add(clave)
+
+        # Si el producto/cantidad es nuevo, iniciar en False
+        if clave not in st.session_state.check_estado:
+            st.session_state.check_estado[clave] = False
+
+        # Mostrar checkbox manteniendo estado previo solo si la cantidad no cambió
+        st.session_state.check_estado[clave] = st.checkbox(
+            f"{fila['Cantidad']} {fila['Unidad']} {fila['Producto']}",
+            value=st.session_state.check_estado[clave],
+            key=f"chk_{clave}"
+        )
+
+    # Eliminar del estado productos que ya no están en la lista
+    claves_guardadas = set(st.session_state.check_estado.keys())
+    for clave in claves_guardadas - claves_actuales:
+        del st.session_state.check_estado[clave]
+    claves_guardadas = set(st.session_state.check_estado.keys())
+    for clave in claves_guardadas - claves_actuales:
+        del st.session_state.check_estado[clave]
+
+
+    # -------------------------------
+    # INGRESO MANUAL SIMPLE (TEXTO ÚNICO)
+    # -------------------------------
     st.subheader("Agregar ingrediente manual")
-    
-    
+
     if "manual_items" not in st.session_state:
-    	st.session_state.manual_items = []
-    
-    
+        st.session_state.manual_items = []
+
     texto_manual = st.text_input("Escribe un ingrediente (ej: 2 kg arroz)")
-    
-    
+
     if st.button("Agregar"):
-    	if texto_manual:
-    		st.session_state.manual_items.append({
-    			"texto": texto_manual,
-    			"checked": False,
-    		})
-    
-    
+        if texto_manual:
+            st.session_state.manual_items.append({
+                "texto": texto_manual,
+                "checked": False,
+            })
+
     # Mostrar ingredientes manuales
     if st.session_state.manual_items:
-    	st.markdown("### Ingredientes manuales")
-    
-    
-    	nuevos_items = []
-    
-    
-    	for i, item in enumerate(st.session_state.manual_items):
+        st.markdown("### Ingredientes manuales")
+
+        nuevos_items = []
+
+        for i, item in enumerate(st.session_state.manual_items):
+            # Compatibilidad por si había items antiguos con otra estructura
             if "texto" not in item:
                 item = {"texto": str(item), "checked": False}
-            
+
             col_chk, col_txt, col_del = st.columns([1, 6, 1])
-            
+
             with col_chk:
                 item["checked"] = st.checkbox(
                     "",
-    				value=item["checked"],
-    				key=f"manual_chk_{i}"
-    			)
-    
+                    value=item.get("checked", False),
+                    key=f"manual_chk_{i}"
+                )
+
             with col_txt:
                 st.write(item["texto"])
-    
-    
+
             with col_del:
                 if st.button("❌", key=f"del_{i}"):
                     continue
-    
+
             nuevos_items.append(item)
-    
+
         st.session_state.manual_items = nuevos_items
     
 
@@ -238,6 +228,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
