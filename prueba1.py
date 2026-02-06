@@ -258,9 +258,6 @@ st.dataframe(subset, use_container_width=True)
 
 costo_total = subset["Costo"].sum()
 
-st.subheader("Total del índice")
-st.metric("Costo total", f"S/ {costo_total:,.2f}")
-
 # TOTAL GENERAL
 
 totales = []
@@ -277,9 +274,17 @@ for idx in indices:
 
     totales.append(total_idx)
 
-st.divider()
-st.subheader("Total general (todos los índices)")
-st.metric("TOTAL", f"S/ {sum(totales):,.2f}")
+total_general = sum(totales)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric("Costo del índice seleccionado", f"S/ {costo_total:,.2f}")
+
+with col2:
+    st.metric("Costo total de todos los índices", f"S/ {total_general:,.2f}")
+
+
 
 
 
