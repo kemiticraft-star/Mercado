@@ -106,6 +106,7 @@ else:
         ultimo_precio = fila.loc[ultima_fecha, "Precio"]
 
         st.markdown("---")
+        st.subheader("Último Precio registrado")
         st.write(f"**Precio:** S/ {ultimo_precio:.2f}")
         st.write(f"**Fecha:** {ultima_fecha.strftime('%d/%m/%Y')}")
 
