@@ -168,7 +168,7 @@ st.header("Costo total por índice")
 if indices:
 
     # ---------- CARGAR TABLA DE CONVERSIÓN (HOJA 3) ----------
-    url_conversion = "https://docs.google.com/spreadsheets/d/1hfUF27WMtRIFtnqqgbZX3NU5FSlApzhnw2x3ALUDaVo/export?format=csv&gid=HOJA3_GID"
+    url_conversion = "https://docs.google.com/spreadsheets/d/1hfUF27WMtRIFtnqqgbZX3NU5FSlApzhnw2x3ALUDaVo/export?format=csv&gid=280645324"
     conversion = cargar_datos(url_conversion)
 
     # limpiar nombres
@@ -274,5 +274,6 @@ if not datos_grafico.empty:
     plt.xticks(rotation=45)
 
     st.pyplot(fig)
+
 
 
