@@ -90,7 +90,7 @@ if indices:
     		del st.session_state.check_estado[clave]
 
     
-    # INGRESO MANUAL DE INGREDIENTES
+    # INGRESO MANUAL SIMPLE
     st.subheader("Agregar ingrediente manual")
     
     
@@ -98,28 +98,18 @@ if indices:
     	st.session_state.manual_items = []
     
     
-    col1, col2, col3 = st.columns(3)
+    texto_manual = st.text_input("Escribe un ingrediente (ej: 2 kg arroz)")
     
     
-    with col1:
-    	cant_manual = st.text_input("Cantidad", key="cant_manual")
-    with col2:
-    	unidad_manual = st.text_input("Unidad", key="unidad_manual")
-    with col3:
-    	prod_manual = st.text_input("Producto", key="prod_manual")
-    
-    
-    if st.button("Agregar ingrediente"):
-    	if prod_manual:
+    if st.button("Agregar"):
+    	if texto_manual:
     		st.session_state.manual_items.append({
-    			"Cantidad": cant_manual,
-    			"Unidad": unidad_manual,
-    			"Producto": prod_manual,
+    			"texto": texto_manual,
     			"checked": False,
     		})
     
     
-    # Mostrar ingredientes manuales con checkbox y opción de eliminar
+    # Mostrar ingredientes manuales
     if st.session_state.manual_items:
     	st.markdown("### Ingredientes manuales")
     
@@ -140,7 +130,7 @@ if indices:
     
     
     		with col_txt:
-    			st.write(f"{item['Cantidad']} {item['Unidad']} {item['Producto']}")
+    			st.write(item["texto"])
     
     
     		with col_del:
@@ -152,6 +142,7 @@ if indices:
     
     
     	st.session_state.manual_items = nuevos_items
+    
 
 # ===============================
 # SECCIÓN 2 → PRECIOS HISTÓRICOS
@@ -248,6 +239,7 @@ else:
         .sort_values(ascending=False)
     )
 """
+
 
 
 
