@@ -207,22 +207,22 @@ if indices:
         .merge(conversion, on="Producto", how="left")
     )
 
+    # ===== DEBUG =====
     st.subheader("DEBUG PRECIOS")
-
+    
     st.write("Tabla con precios:")
-    st.dataframe(df_precios.head())
+    st.dataframe(precios.head())
     
     st.write("Tipos de datos precios:")
-    st.write(df_precios.dtypes)
+    st.write(precios.dtypes)
     
     st.write("Tabla después del merge:")
-    st.dataframe(df_indices.head())
+    st.dataframe(datos.head())
     
     st.write("Valores únicos de precio:")
-    st.write(df_indices["Precio"].unique())
-    
-    st.write("Valores únicos de factor:")
-    st.write(df_indices["factor"].unique())
+    st.write(datos["Precio"].unique())
+    # =================
+
 
 
     # ---------- CONVERSIÓN und → kg ----------
@@ -292,6 +292,7 @@ if not datos_grafico.empty:
     plt.xticks(rotation=45)
 
     st.pyplot(fig)
+
 
 
 
